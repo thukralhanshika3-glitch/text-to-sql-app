@@ -1,0 +1,4 @@
+student_grades.db
+__pycache__/
+.streamlit/
+*.pyc
