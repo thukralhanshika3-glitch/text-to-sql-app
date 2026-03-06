@@ -1,6 +1,7 @@
 import streamlit as st
+import os
 from langchain_community.utilities import SQLDatabase
-from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -9,13 +10,23 @@ st.set_page_config(page_title="Text-to-SQL App", layout="centered")
 st.title("📊 Talk to Your Database")
 st.write("Ask questions about the student grades database in plain English.")
 
+# API Key Input
+with st.sidebar:
+    groq_api_key = st.text_input("Groq API Key", type="password")
+    st.markdown("[Get your Groq API key here](https://console.groq.com/keys)")
+
 # Database Connection
 db = SQLDatabase.from_uri("sqlite:///student_grades.db")
 
-# Local LLM (Ollama)
-llm = ChatOllama(
-    model="llama3",
-    temperature=0
+if not groq_api_key:
+    st.info("🚨 Please add your Groq API key in the sidebar to continue.")
+    st.stop()
+
+# Fast Cloud LLM (Groq)
+llm = ChatGroq(
+    model="llama3-8b-8192", # Faster Llama 3 running on Groq LPU
+    temperature=0,
+    api_key=groq_api_key
 )
 
 # Prompt (LCEL Style)
@@ -71,4 +82,4 @@ if question:
 
 # Footer
 st.markdown("---")
-st.caption("Powered by LangChain 1.x • Ollama • Llama 3 • Streamlit")
+st.caption("Powered by LangChain • Groq LPU • Llama 3 • Streamlit")
